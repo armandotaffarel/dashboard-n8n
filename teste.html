@@ -2,30 +2,49 @@
   <head>
     <meta charset="utf-8" />
     <title>Dashboard de Vendas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    </style>
   </head>
 
-  <body class="bg-gray-100 p-10">
+  <body class="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 p-6">
 
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow">
-      <h1 class="text-3xl font-bold mb-6 text-blue-600">
-        Dashboard de Vendas
-      </h1>
+    <div class="absolute inset-0 overflow-hidden -z-10">
+      <div class="absolute -left-24 -top-32 w-80 h-80 bg-blue-500/20 blur-3xl"></div>
+      <div class="absolute right-0 top-10 w-96 h-96 bg-indigo-400/10 blur-3xl"></div>
+      <div class="absolute left-20 bottom-0 w-72 h-72 bg-cyan-400/10 blur-3xl"></div>
+    </div>
 
-      <div class="mb-6">
-        <canvas id="graficoVendas" class="w-full h-64"></canvas>
+    <div class="max-w-5xl mx-auto bg-white/10 border border-white/10 backdrop-blur-xl p-8 rounded-2xl shadow-2xl shadow-blue-900/40">
+      <div class="flex items-start justify-between gap-3 mb-6">
+        <div>
+          <p class="text-xs tracking-[0.3em] uppercase text-slate-400">Relatório</p>
+          <h1 class="text-3xl font-bold text-white">Dashboard de Vendas</h1>
+          <p class="text-sm text-slate-400 mt-1">Evolução mensal e totais consolidados</p>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-200 text-xs border border-emerald-400/30">
+          Atualiza a cada 30s
+        </span>
+      </div>
+
+      <div class="mb-8 bg-white/5 border border-white/10 rounded-xl p-4 shadow-inner shadow-black/20">
+        <canvas id="graficoVendas" class="w-full h-72"></canvas>
       </div>
 
       <div class="grid grid-cols-2 gap-4 mt-8">
-        <div class="bg-blue-100 p-4 rounded-xl shadow text-center">
-          <p class="text-sm text-blue-700">Vendas Totais no Ano</p>
-          <p id="totalAno" class="text-2xl font-bold text-blue-900"></p>
+        <div class="bg-white/10 border border-white/10 p-5 rounded-xl shadow-lg shadow-blue-900/20">
+          <p class="text-sm text-slate-300">Vendas Totais no Ano</p>
+          <p id="totalAno" class="text-3xl font-bold text-white mt-2"></p>
         </div>
 
-        <div class="bg-green-100 p-4 rounded-xl shadow text-center">
-          <p class="text-sm text-green-700">Média Mensal</p>
-          <p id="mediaMes" class="text-2xl font-bold text-green-900"></p>
+        <div class="bg-white/10 border border-white/10 p-5 rounded-xl shadow-lg shadow-emerald-900/20">
+          <p class="text-sm text-slate-300">Média Mensal</p>
+          <p id="mediaMes" class="text-3xl font-bold text-emerald-200 mt-2"></p>
         </div>
       </div>
     </div>
@@ -44,7 +63,7 @@
           chart.data.datasets.forEach((dataset, dsIndex) => {
             const meta = chart.getDatasetMeta(dsIndex);
             meta.data.forEach((point, idx) => {
-              ctx.fillStyle = '#111827';
+              ctx.fillStyle = '#E5E7EB';
               ctx.font = '12px sans-serif';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'bottom';
@@ -60,9 +79,12 @@
 
       Chart.register(valueLabels);
 
-      const ctx = document.getElementById('graficoVendas');
+      const canvas = document.getElementById('graficoVendas');
+      const gradient = canvas.getContext('2d').createLinearGradient(0, 0, 0, 350);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.45)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
 
-      new Chart(ctx, {
+      new Chart(canvas, {
         type: 'line',
         data: {
           labels: MESES,
@@ -70,11 +92,11 @@
             label: 'Vendas (R$)',
             data: VALORES,
             borderWidth: 3,
-            borderColor: 'rgba(37, 99, 235, 0.9)',
-            backgroundColor: 'rgba(37, 99, 235, 0.3)',
+            borderColor: 'rgba(59, 130, 246, 0.9)',
+            backgroundColor: gradient,
             pointRadius: 5,
-            pointHoverRadius: 6,
-            pointBackgroundColor: 'rgba(37, 99, 235, 0.9)',
+            pointHoverRadius: 7,
+            pointBackgroundColor: 'rgba(59, 130, 246, 0.95)',
             fill: true,
             tension: 0.35
           }]
@@ -82,7 +104,25 @@
         options: {
           responsive: true,
           scales: {
-            y: { beginAtZero: false }
+            y: {
+              beginAtZero: false,
+              ticks: { color: '#E5E7EB' },
+              grid: { color: 'rgba(255,255,255,0.06)' }
+            },
+            x: {
+              ticks: { color: '#E5E7EB' },
+              grid: { color: 'rgba(255,255,255,0.03)' }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#E5E7EB', boxWidth: 12, boxHeight: 12 }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR')
+              }
+            }
           }
         }
       });
