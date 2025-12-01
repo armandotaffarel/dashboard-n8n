@@ -1,56 +1,80 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard de Vendas</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard de Vendas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
 
-<body class="bg-gray-100 p-10">
+  <body class="bg-gray-100 p-10">
 
-  <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow">
-    <h1 class="text-3xl font-bold mb-6 text-blue-600">Dashboard de Vendas</h1>
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow">
+      <h1 class="text-3xl font-bold mb-6 text-blue-600">
+        Dashboard de Vendas
+      </h1>
 
-    <div class="mb-6">
-      <canvas id="graficoVendas" class="w-full h-64"></canvas>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 mt-8">
-      <div class="bg-blue-100 p-4 rounded-xl shadow text-center">
-        <p class="text-sm text-blue-700">Vendas Totais no Ano</p>
-        <p class="text-2xl font-bold text-blue-900">
-          R$ {{TOTAL_ANUAL}}
-        </p>
+      <div class="mb-6">
+        <canvas id="graficoVendas" class="w-full h-64"></canvas>
       </div>
 
-      <div class="bg-green-100 p-4 rounded-xl shadow text-center">
-        <p class="text-sm text-green-700">Média Mensal</p>
-        <p class="text-2xl font-bold text-green-900">
-          R$ {{MEDIA_MENSAL}}
-        </p>
+      <div class="grid grid-cols-2 gap-4 mt-8">
+        <div class="bg-blue-100 p-4 rounded-xl shadow text-center">
+          <p class="text-sm text-blue-700">Vendas Totais no Ano</p>
+          <p id="totalAno" class="text-2xl font-bold text-blue-900"></p>
+        </div>
+
+        <div class="bg-green-100 p-4 rounded-xl shadow text-center">
+          <p class="text-sm text-green-700">Média Mensal</p>
+          <p id="mediaMes" class="text-2xl font-bold text-green-900"></p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    <script>
+      const MESES = {{MESES}};
+      const VALORES = {{VALORES}};
 
-      const meses = {{MESES}};
-      const valores = {{VALORES}};
+      // Plugin para exibir o valor de cada ponto no gráfico
+      const valueLabels = {
+        id: 'valueLabels',
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          ctx.save();
 
-      const ctx = document.getElementById("graficoVendas");
+          chart.data.datasets.forEach((dataset, dsIndex) => {
+            const meta = chart.getDatasetMeta(dsIndex);
+            meta.data.forEach((point, idx) => {
+              ctx.fillStyle = '#111827';
+              ctx.font = '12px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+
+              const value = 'R$ ' + dataset.data[idx].toLocaleString('pt-BR');
+              ctx.fillText(value, point.x, point.y - 6);
+            });
+          });
+
+          ctx.restore();
+        }
+      };
+
+      Chart.register(valueLabels);
+
+      const ctx = document.getElementById('graficoVendas');
 
       new Chart(ctx, {
         type: 'line',
         data: {
-          labels: meses,
+          labels: MESES,
           datasets: [{
             label: 'Vendas (R$)',
-            data: valores,
+            data: VALORES,
             borderWidth: 3,
             borderColor: 'rgba(37, 99, 235, 0.9)',
             backgroundColor: 'rgba(37, 99, 235, 0.3)',
+            pointRadius: 5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: 'rgba(37, 99, 235, 0.9)',
             fill: true,
             tension: 0.35
           }]
@@ -63,8 +87,12 @@
         }
       });
 
-    });
-  </script>
+      document.getElementById("totalAno").innerText =
+        "R$ " + VALORES.reduce((a,b) => a + b, 0).toLocaleString("pt-BR");
 
-</body>
+      document.getElementById("mediaMes").innerText =
+        "R$ " + (VALORES.reduce((a,b) => a + b, 0) / VALORES.length).toLocaleString("pt-BR");
+    </script>
+
+  </body>
 </html>
