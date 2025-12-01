@@ -92,6 +92,11 @@
 
       document.getElementById("mediaMes").innerText =
         "R$ " + (VALORES.reduce((a,b) => a + b, 0) / VALORES.length).toLocaleString("pt-BR");
+
+      // Recarrega a página automaticamente a cada 30 segundos
+      setInterval(() => {
+        window.location.reload();
+      }, 30000);
     </script>
 
   </body>
