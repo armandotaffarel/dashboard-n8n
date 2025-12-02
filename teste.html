@@ -25,7 +25,7 @@
         <div>
           <p class="text-xs tracking-[0.3em] uppercase text-slate-400">Relatório</p>
           <h1 class="text-3xl font-bold text-white">Dashboard de Vendas</h1>
-          <p class="text-sm text-slate-400 mt-1">Evolução mensal e totais consolidados</p>
+          <p class="text-sm text-slate-400 mt-1">Faturamento diário e totais consolidados</p>
         </div>
         <span class="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-200 text-xs border border-emerald-400/30">
           Atualiza a cada 30s
@@ -38,20 +38,20 @@
 
       <div class="grid grid-cols-2 gap-4 mt-8">
         <div class="bg-white/10 border border-white/10 p-5 rounded-xl shadow-lg shadow-blue-900/20">
-          <p class="text-sm text-slate-300">Vendas Totais no Ano</p>
+          <p class="text-sm text-slate-300">Total a Faturar</p>
           <p id="totalAno" class="text-3xl font-bold text-white mt-2"></p>
         </div>
 
         <div class="bg-white/10 border border-white/10 p-5 rounded-xl shadow-lg shadow-emerald-900/20">
-          <p class="text-sm text-slate-300">Média Mensal</p>
+          <p class="text-sm text-slate-300">Média Diária</p>
           <p id="mediaMes" class="text-3xl font-bold text-emerald-200 mt-2"></p>
         </div>
       </div>
     </div>
 
     <script>
-      const MESES = {{MESES}};
-      const VALORES = {{VALORES}};
+      const DIAS = {{DIAS}}; // ex.: ["01", "02", ...]
+      const VALORES_DIARIOS = {{VALORES_DIARIOS}}; // ex.: [1200, 980, ...]
 
       // Plugin para exibir o valor de cada ponto no gráfico
       const valueLabels = {
@@ -87,10 +87,10 @@
       new Chart(canvas, {
         type: 'line',
         data: {
-          labels: MESES,
+          labels: DIAS,
           datasets: [{
-            label: 'Vendas (R$)',
-            data: VALORES,
+            label: 'Faturamento diário (R$)',
+            data: VALORES_DIARIOS,
             borderWidth: 3,
             borderColor: 'rgba(59, 130, 246, 0.9)',
             backgroundColor: gradient,
@@ -128,10 +128,10 @@
       });
 
       document.getElementById("totalAno").innerText =
-        "R$ " + VALORES.reduce((a,b) => a + b, 0).toLocaleString("pt-BR");
+        "R$ " + VALORES_DIARIOS.reduce((a,b) => a + b, 0).toLocaleString("pt-BR");
 
       document.getElementById("mediaMes").innerText =
-        "R$ " + (VALORES.reduce((a,b) => a + b, 0) / VALORES.length).toLocaleString("pt-BR");
+        "R$ " + (VALORES_DIARIOS.reduce((a,b) => a + b, 0) / VALORES_DIARIOS.length).toLocaleString("pt-BR");
 
       // Recarrega a página automaticamente a cada 30 segundos
       setInterval(() => {
